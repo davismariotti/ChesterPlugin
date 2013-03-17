@@ -1,0 +1,10 @@
+main: info.gomeow.chester.Chester
+name: Chester
+version: 1.0
+
+permissions:
+  chester.*:
+    children:
+      chester.trigger: true
+  chester.trigger:
+    default: true
