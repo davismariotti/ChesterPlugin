@@ -56,6 +56,7 @@ public class Chester extends JavaPlugin implements Listener {
 	public void onEnable() {
 		getServer().getPluginManager().registerEvents(this, this);
 		getConfig().options().header("Trigger word is case insensitive.");
+		getConfig().options().copyHeader(true);
 		getConfig().options().copyDefaults(true);
 		getConfig().addDefault("triggerword","chester");
 		getConfig().addDefault("nickname","<_Chester_>");
