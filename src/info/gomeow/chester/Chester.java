@@ -55,11 +55,18 @@ public class Chester extends JavaPlugin implements Listener {
 	}
 	public void onEnable() {
 		getServer().getPluginManager().registerEvents(this, this);
+		getConfig().options().header("Trigger word is case insensitive.");
+		getConfig().options().copyDefaults(true);
+		getConfig().addDefault("triggerword","chester");
+		getConfig().addDefault("nickname","<_Chester_>");
+		saveConfig();
+		
 		startChester();
 	}
 	
 	@EventHandler
 	public void onChat(AsyncPlayerChatEvent event) {
+		String chester = getConfig().getString("triggerword");
 		if(event.getPlayer().hasPermission("chester.trigger")) {
 			hal.add(event.getMessage());
 			try {
@@ -75,12 +82,12 @@ public class Chester extends JavaPlugin implements Listener {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			if(event.getMessage().replaceAll("(?i)chester","").length()!=event.getMessage().length()) {
+			if(event.getMessage().replaceAll("(?i)"+chester,"").length()!=event.getMessage().length()) {
 				getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 	
 					@Override
 					public void run() {
-						Bukkit.broadcastMessage("<_Chester_> "+hal.getSentence());
+						Bukkit.broadcastMessage(getConfig().getString("nickname")+" "+hal.getSentence());
 					}
 					
 				}, 20L);
