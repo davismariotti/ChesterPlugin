@@ -1,0 +1,4 @@
+# Trigger word is case insensitive.
+# Nickname can contain color codes using the '&' character.
+triggerword: 'chester'
+nickname: '<_Chester_>'
