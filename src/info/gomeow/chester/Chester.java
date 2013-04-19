@@ -85,6 +85,7 @@ public class Chester extends JavaPlugin implements Listener {
         }
     }
 
+    @Override
     public void onEnable() {
         getServer().getPluginManager().registerEvents(this, this);
         saveDefaultConfig();
@@ -92,11 +93,18 @@ public class Chester extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public void onChat(AsyncPlayerChatEvent event) {
+    public void onChat(final AsyncPlayerChatEvent event) {
         String chester = getConfig().getString("triggerword");
         write(clean(event.getMessage()));
         if(event.getPlayer().hasPermission("chester.trigger")) {
-            hal.add(event.getMessage());
+            getServer().getScheduler().runTask(this, new Runnable() {
+
+                @Override
+                public void run() {
+                    hal.add(event.getMessage());
+                }
+
+            });
             if(event.getMessage().replaceAll("(?i)" + chester, "").length() != event.getMessage().length()) {
                 getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 
