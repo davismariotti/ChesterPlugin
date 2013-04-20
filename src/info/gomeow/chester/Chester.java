@@ -49,7 +49,6 @@ public class Chester extends JavaPlugin implements Listener {
             File old = new File(this.getDataFolder(), "chester.brain");
             if(old.exists()) {
                 transfer(new ObjectInputStream(new FileInputStream(old)));
-                old.delete();
             }
             if(chesterFile.exists()) {
                 FileReader fr = new FileReader(chesterFile);
