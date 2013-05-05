@@ -88,6 +88,10 @@ public class Chester extends JavaPlugin implements Listener {
     public void onEnable() {
         getServer().getPluginManager().registerEvents(this, this);
         saveDefaultConfig();
+        if(getConfig().getString("chatcolor") == null) {
+            getConfig().set("chatcolor", "r");
+        }
+        saveConfig();
         startChester();
     }
 
@@ -109,7 +113,7 @@ public class Chester extends JavaPlugin implements Listener {
 
                     @Override
                     public void run() {
-                        Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("nickname")) + ChatColor.RESET + " " + hal.getSentence());
+                        Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("nickname")) + ChatColor.getByChar(getConfig().getString("chatcolor")) + " " + ChatColor.translateAlternateColorCodes('&', hal.getSentence()));
                     }
 
                 }, 20L);
