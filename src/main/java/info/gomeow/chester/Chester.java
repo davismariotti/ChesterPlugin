@@ -38,7 +38,7 @@ public class Chester extends JavaPlugin implements Listener {
             in.close();
         }
     }
-    
+
     public void startChester() {
         try {
             File chesterFile = new File(this.getDataFolder(), "brain.chester");
@@ -63,13 +63,13 @@ public class Chester extends JavaPlugin implements Listener {
             }
         } catch(IOException ioe) {} catch(ClassNotFoundException cnfe) {}
     }
-    
-    public String clean(String string){
-        if (string != null && string.length() > 300) {
+
+    public String clean(String string) {
+        if(string != null && string.length() > 300) {
             string = string.substring(0, 300);
-         }
+        }
         String newstring = string.replaceAll("<.*?>", "").replaceAll("\\[.*?\\]", "");
-        return newstring;  
+        return newstring;
     }
 
     public void write(String sentence) {
@@ -79,7 +79,7 @@ public class Chester extends JavaPlugin implements Listener {
             BufferedWriter bw = new BufferedWriter(fw);
             bw.write(sentence + "\n");
             bw.close();
-        } catch (IOException ioe) {
+        } catch(IOException ioe) {
             ioe.printStackTrace();
         }
     }
@@ -98,7 +98,9 @@ public class Chester extends JavaPlugin implements Listener {
     @EventHandler
     public void onChat(final AsyncPlayerChatEvent event) {
         String chester = getConfig().getString("triggerword");
-        write(clean(event.getMessage()));
+        if(event.getPlayer().hasPermission("chester.log")) {
+            write(clean(event.getMessage()));
+        }
         if(event.getPlayer().hasPermission("chester.trigger")) {
             getServer().getScheduler().runTask(this, new Runnable() {
 
