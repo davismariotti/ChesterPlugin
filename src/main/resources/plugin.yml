@@ -1,6 +1,6 @@
 main: info.gomeow.chester.Chester
 name: Chester
-version: 2.0.0
+version: ${project.version}
 
 permissions:
   chester.*:
