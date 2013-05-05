@@ -6,5 +6,8 @@ permissions:
   chester.*:
     children:
       chester.trigger: true
+      chester.log: true
   chester.trigger:
+    default: true
+  chester.log:
     default: true
