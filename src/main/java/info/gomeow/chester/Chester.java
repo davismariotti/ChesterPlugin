@@ -15,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jibble.jmegahal.JMegaHal;
 
 public class Chester extends JavaPlugin implements Listener {
@@ -102,7 +103,7 @@ public class Chester extends JavaPlugin implements Listener {
             write(clean(event.getMessage()));
         }
         if(event.getPlayer().hasPermission("chester.trigger")) {
-            getServer().getScheduler().runTask(this, new Runnable() {
+            getServer().getScheduler().runTask(this, new BukkitRunnable() {
 
                 @Override
                 public void run() {
@@ -111,7 +112,7 @@ public class Chester extends JavaPlugin implements Listener {
 
             });
             if(event.getMessage().replaceAll("(?i)" + chester, "").length() != event.getMessage().length()) {
-                getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+                getServer().getScheduler().scheduleSyncDelayedTask(this, new BukkitRunnable() {
 
                     @Override
                     public void run() {

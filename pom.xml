@@ -2,12 +2,12 @@
 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>info.gomeow</groupId>
-	<artifactId>Chester</artifactId>
-	<version>2.1.0-SNAPSHOT</version>
-	<name>Chester</name>
+	<artifactId>chester</artifactId>
+	<version>2.1.0</version>
+	<name>chester</name>
 	<build>
 		<defaultGoal>clean package install</defaultGoal>
-		<finalName>Chester</finalName>
+		<finalName>chester</finalName>
 		<sourceDirectory>${basedir}/src/main/java</sourceDirectory>
 		<resources>
 			<resource>
@@ -51,7 +51,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>craftbukkit</artifactId>
-			<version>1.5-R0.1-SNAPSHOT</version>
+			<version>LATEST</version>
 		</dependency>
 	</dependencies>
 	<repositories>
