@@ -4,10 +4,10 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	<groupId>info.gomeow</groupId>
 	<artifactId>chester</artifactId>
 	<version>2.1.0</version>
-	<name>chester</name>
+	<name>Chester</name>
 	<build>
 		<defaultGoal>clean package install</defaultGoal>
-		<finalName>chester</finalName>
+		<finalName>Chester</finalName>
 		<sourceDirectory>${basedir}/src/main/java</sourceDirectory>
 		<resources>
 			<resource>
