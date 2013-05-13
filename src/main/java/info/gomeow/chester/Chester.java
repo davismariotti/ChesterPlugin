@@ -1,5 +1,8 @@
 package info.gomeow.chester;
 
+import info.gomeow.chester.util.Metrics;
+import info.gomeow.chester.util.Updater;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -8,19 +11,53 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jibble.jmegahal.JMegaHal;
 
 public class Chester extends JavaPlugin implements Listener {
 
+    public static String LINK;
+    public static boolean UPDATE;
+    public static String NEWVERSION;
+
     JMegaHal hal = new JMegaHal();
+
+    @Override
+    public void onEnable() {
+        getServer().getPluginManager().registerEvents(this, this);
+        saveDefaultConfig();
+        if(getConfig().getString("chatcolor") == null) {
+            getConfig().set("chatcolor", "r");
+        }
+        if(getConfig().getString("check-update") == null) {
+            getConfig().set("check-update", true);
+        }
+        saveConfig();
+        startChester();
+        Updater u = new Updater();
+        if(getConfig().getBoolean("check-update", true)) {
+            try {
+                if(u.getUpdate(getDescription().getVersion())) {
+                    UPDATE = true;
+                }
+            } catch(IOException e) {
+                getLogger().log(Level.WARNING, "Chester: Failed to check for updates.");
+                getLogger().log(Level.WARNING, "Chester: Report this stack trace to gomeow.");
+                e.printStackTrace();
+            }
+        }
+        startMetrics();
+    }
 
     public void firstRun(File f) {
         try {
@@ -37,6 +74,15 @@ public class Chester extends JavaPlugin implements Listener {
         hal = (JMegaHal) in.readObject();
         if(in != null) {
             in.close();
+        }
+    }
+
+    public void startMetrics() {
+        try {
+            Metrics metrics = new Metrics(this);
+            metrics.start();
+        } catch(IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -62,7 +108,9 @@ public class Chester extends JavaPlugin implements Listener {
             } else {
                 firstRun(chesterFile);
             }
-        } catch(IOException ioe) {} catch(ClassNotFoundException cnfe) {}
+        } catch(IOException ioe) {
+        } catch(ClassNotFoundException cnfe) {
+        }
     }
 
     public String clean(String string) {
@@ -85,15 +133,13 @@ public class Chester extends JavaPlugin implements Listener {
         }
     }
 
-    @Override
-    public void onEnable() {
-        getServer().getPluginManager().registerEvents(this, this);
-        saveDefaultConfig();
-        if(getConfig().getString("chatcolor") == null) {
-            getConfig().set("chatcolor", "r");
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        if(player.isOp() && UPDATE) {
+            player.sendMessage(ChatColor.DARK_AQUA + "Version " + NEWVERSION + " of Chester is up for download!");
+            player.sendMessage(ChatColor.DARK_AQUA + LINK + " to view the changelog and download!");
         }
-        saveConfig();
-        startChester();
     }
 
     @EventHandler

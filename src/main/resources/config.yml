@@ -2,3 +2,7 @@
 # Nickname can contain color codes using the '&' character.
 triggerword: 'chester'
 nickname: '<_Chester_>'
+# The chat color will be the color chester talks in.
+chatcolor: r
+# If this is set to true, then operators will be notified if there is an update available for chester.
+check-update: true
