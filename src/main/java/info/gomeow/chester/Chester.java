@@ -11,6 +11,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -32,6 +34,8 @@ public class Chester extends JavaPlugin implements Listener {
 
     JMegaHal hal = new JMegaHal();
 
+    List<String> triggerwords;
+    
     @Override
     public void onEnable() {
         getServer().getPluginManager().registerEvents(this, this);
@@ -41,6 +45,14 @@ public class Chester extends JavaPlugin implements Listener {
         }
         if(getConfig().getString("check-update") == null) {
             getConfig().set("check-update", true);
+        }
+        if(getConfig().get("triggerword") != null) {
+            String word = getConfig().getString("triggerword");
+            getConfig().set("triggerwords", Arrays.asList(new String[] {word}));
+            getConfig().set("triggerword", null);
+            triggerwords = Arrays.asList(new String[] {"chester"});
+        } else {
+            triggerwords = getConfig().getStringList("triggerwords");
         }
         saveConfig();
         startChester();
@@ -101,7 +113,7 @@ public class Chester extends JavaPlugin implements Listener {
                 FileReader fr = new FileReader(chesterFile);
                 BufferedReader br = new BufferedReader(fr);
                 String line = null;
-                while ((line = br.readLine()) != null) {
+                while((line = br.readLine()) != null) {
                     hal.add(line);
                 }
                 br.close();
@@ -144,7 +156,6 @@ public class Chester extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onChat(final AsyncPlayerChatEvent event) {
-        String chester = getConfig().getString("triggerword");
         if(event.getPlayer().hasPermission("chester.log")) {
             write(clean(event.getMessage()));
         }
@@ -157,15 +168,18 @@ public class Chester extends JavaPlugin implements Listener {
                 }
 
             });
-            if(event.getMessage().replaceAll("(?i)" + chester, "").length() != event.getMessage().length()) {
-                getServer().getScheduler().scheduleSyncDelayedTask(this, new BukkitRunnable() {
+            for(String trigger:triggerwords) {
+                if(event.getMessage().replaceAll("(?i)" + trigger, "").length() != event.getMessage().length()) {
+                    getServer().getScheduler().scheduleSyncDelayedTask(this, new BukkitRunnable() {
 
-                    @Override
-                    public void run() {
-                        Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("nickname")) + ChatColor.getByChar(getConfig().getString("chatcolor")) + " " + ChatColor.translateAlternateColorCodes('&', hal.getSentence()));
-                    }
+                        @Override
+                        public void run() {
+                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("nickname")) + ChatColor.getByChar(getConfig().getString("chatcolor")) + " " + ChatColor.translateAlternateColorCodes('&', hal.getSentence()));
+                        }
 
-                }, 20L);
+                    }, 20L);
+                    break;
+                }
             }
         }
     }
