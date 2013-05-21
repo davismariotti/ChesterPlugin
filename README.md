@@ -1,3 +1,3 @@
 ChesterPlugin
 =============
-An awesome person to talk to
+An awesome person to talk to.
