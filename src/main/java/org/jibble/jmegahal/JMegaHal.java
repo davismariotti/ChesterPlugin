@@ -16,20 +16,12 @@ $Id: JMegaHal.java,v 1.4 2004/02/01 13:24:06 pjm2 Exp $
 
 package org.jibble.jmegahal;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Serializable;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Random;
+import java.util.*;
+import java.net.*;
+import java.io.*;
 
 public class JMegaHal implements Serializable {
-    private static final long serialVersionUID = 1L;
+    
     // These are valid chars for words. Anything else is treated as punctuation.
     public static final String WORD_CHARS = "abcdefghijklmnopqrstuvwxyz" +
                                             "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
@@ -118,7 +110,7 @@ public class JMegaHal implements Serializable {
                 for (int n = 0; n < 4; n++) {
                     String token = parts.get(i + n);
                     if (!words.containsKey(token)) {
-                        words.put(token, new HashSet<Quad>(1));
+                        words.put(token, new HashSet(1));
                     }
                     HashSet<Quad> set = words.get(token);
                     set.add(quad);
@@ -127,7 +119,7 @@ public class JMegaHal implements Serializable {
                 if (i > 0) {
                     String previousToken = parts.get(i - 1);
                     if (!previous.containsKey(quad)) {
-                        previous.put(quad, new HashSet<String>(1));
+                        previous.put(quad, new HashSet(1));
                     }
                     HashSet<String> set = previous.get(quad);
                     set.add(previousToken);
@@ -136,7 +128,7 @@ public class JMegaHal implements Serializable {
                 if (i < parts.size() - 4) {
                     String nextToken = parts.get(i + 4);
                     if (!next.containsKey(quad)) {
-                        next.put(quad, new HashSet<String>(1));
+                        next.put(quad, new HashSet(1));
                     }
                     HashSet<String> set = next.get(quad);
                     set.add(nextToken);
@@ -208,16 +200,16 @@ public class JMegaHal implements Serializable {
     }
     
     // This maps a single word to a HashSet of all the Quads it is in.
-    private HashMap<String, HashSet<Quad>> words = new HashMap<String, HashSet<Quad>>();
+    private HashMap<String, HashSet> words = new HashMap<String, HashSet>();
     
     // A self-referential HashMap of Quads.
     private HashMap<Quad, Quad> quads = new HashMap<Quad, Quad>();
     
     // This maps a Quad onto a Set of Strings that may come next.
-    private HashMap<Quad, HashSet<String>> next = new HashMap<Quad, HashSet<String>>();
+    private HashMap<Quad, HashSet> next = new HashMap<Quad, HashSet>();
     
     // This maps a Quad onto a Set of Strings that may come before it.
-    private HashMap<Quad, HashSet<String>> previous = new HashMap<Quad, HashSet<String>>();
+    private HashMap<Quad, HashSet> previous = new HashMap<Quad, HashSet>();
     
     private Random rand = new Random();
     

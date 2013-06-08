@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -36,11 +35,7 @@ public class Chester extends JavaPlugin implements Listener {
     JMegaHal hal = new JMegaHal();
 
     List<String> triggerwords;
-
-    String[] replacementWords = {"I", "he", "she", "me"};
-
-    Random rnd = new Random();
-
+    
     @Override
     public void onEnable() {
         getServer().getPluginManager().registerEvents(this, this);
@@ -173,13 +168,13 @@ public class Chester extends JavaPlugin implements Listener {
                 }
 
             });
-            for(final String trigger:triggerwords) {
+            for(String trigger:triggerwords) {
                 if(event.getMessage().replaceAll("(?i)" + trigger, "").length() != event.getMessage().length()) {
                     getServer().getScheduler().scheduleSyncDelayedTask(this, new BukkitRunnable() {
 
                         @Override
                         public void run() {
-                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("nickname")) + ChatColor.getByChar(getConfig().getString("chatcolor")) + " " + ChatColor.translateAlternateColorCodes('&', hal.getSentence().replaceAll("(?i)" + trigger, replacementWords[rnd.nextInt(4)])));
+                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("nickname")) + ChatColor.getByChar(getConfig().getString("chatcolor")) + " " + ChatColor.translateAlternateColorCodes('&', hal.getSentence()));
                         }
 
                     }, 20L);
