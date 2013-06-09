@@ -35,7 +35,7 @@ public class Chester extends JavaPlugin implements Listener {
     JMegaHal hal = new JMegaHal();
 
     List<String> triggerwords;
-    
+
     @Override
     public void onEnable() {
         getServer().getPluginManager().registerEvents(this, this);
@@ -56,19 +56,8 @@ public class Chester extends JavaPlugin implements Listener {
         }
         saveConfig();
         startChester();
-        Updater u = new Updater();
-        if(getConfig().getBoolean("check-update", true)) {
-            try {
-                if(u.getUpdate(getDescription().getVersion())) {
-                    UPDATE = true;
-                }
-            } catch(IOException e) {
-                getLogger().log(Level.WARNING, "Chester: Failed to check for updates.");
-                getLogger().log(Level.WARNING, "Chester: Report this stack trace to gomeow.");
-                e.printStackTrace();
-            }
-        }
         startMetrics();
+        checkUpdate();
     }
 
     public void firstRun(File f) {
@@ -87,6 +76,27 @@ public class Chester extends JavaPlugin implements Listener {
         if(in != null) {
             in.close();
         }
+    }
+
+    public void checkUpdate() {
+        new BukkitRunnable() {
+
+            public void run() {
+                if(getConfig().getBoolean("check-update", true)) {
+                    try {
+                        Updater u = new Updater(getDescription().getVersion());
+                        if(UPDATE = u.getUpdate()) {
+                            LINK = u.getLink();
+                            NEWVERSION = u.getNewVersion();
+                        }
+                    } catch(Exception e) {
+                        getLogger().log(Level.WARNING, "Failed to check for updates.");
+                        getLogger().log(Level.WARNING, "Report this stack trace to gomeow.");
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.runTaskAsynchronously(this);
     }
 
     public void startMetrics() {
@@ -156,25 +166,40 @@ public class Chester extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onChat(final AsyncPlayerChatEvent event) {
-        if(event.getPlayer().hasPermission("chester.log")) {
-            write(clean(event.getMessage()));
+        Player player = event.getPlayer();
+        final String message = event.getMessage();
+        if(player.hasPermission("chester.log")) {
+            write(clean(message));
         }
-        if(event.getPlayer().hasPermission("chester.trigger")) {
+        if(player.hasPermission("chester.trigger")) {
             getServer().getScheduler().runTask(this, new BukkitRunnable() {
 
                 @Override
                 public void run() {
-                    hal.add(event.getMessage());
+                    boolean cancel = false;
+                    for(String trigger:triggerwords) {
+                        if(message.matches("^.*(?i)" + trigger + ".*$")) {
+                            cancel = true;
+                            break;
+                        }
+                    }
+                    if(!cancel) {
+                        hal.add(message);
+                    }
                 }
 
             });
-            for(String trigger:triggerwords) {
-                if(event.getMessage().replaceAll("(?i)" + trigger, "").length() != event.getMessage().length()) {
+            for(final String trigger:triggerwords) {
+                if(message.matches("^.*(?i)" + trigger + ".*$")) {
                     getServer().getScheduler().scheduleSyncDelayedTask(this, new BukkitRunnable() {
 
                         @Override
                         public void run() {
-                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("nickname")) + ChatColor.getByChar(getConfig().getString("chatcolor")) + " " + ChatColor.translateAlternateColorCodes('&', hal.getSentence()));
+                            String sentence = hal.getSentence();
+                            while(sentence.matches("^.*(?i)" + trigger + ".*$")) {
+                                sentence = hal.getSentence();
+                            }
+                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("nickname")) + ChatColor.getByChar(getConfig().getString("chatcolor")) + " " + ChatColor.translateAlternateColorCodes('&', sentence));
                         }
 
                     }, 20L);
