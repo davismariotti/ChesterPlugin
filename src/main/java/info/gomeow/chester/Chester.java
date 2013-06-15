@@ -11,7 +11,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -46,15 +45,10 @@ public class Chester extends JavaPlugin implements Listener {
         if(getConfig().getString("check-update") == null) {
             getConfig().set("check-update", true);
         }
-        if(getConfig().get("triggerword") != null) {
-            String word = getConfig().getString("triggerword");
-            getConfig().set("triggerwords", Arrays.asList(new String[] {word}));
-            getConfig().set("triggerword", null);
-            triggerwords = Arrays.asList(new String[] {"chester"});
-        } else {
-            triggerwords = getConfig().getStringList("triggerwords");
+        triggerwords = getConfig().getStringList("triggerwords");
+        if(triggerwords.size() == 0) {
+            triggerwords.add("chester");
         }
-        saveConfig();
         startChester();
         startMetrics();
         checkUpdate();
