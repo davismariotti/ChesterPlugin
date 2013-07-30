@@ -30,6 +30,19 @@ public class ChesterBroadcastEvent extends Event {
     }
 
     /**
+     * Sets the message that will be broadcasted.
+     * <br>
+     * Modifying this message is not recommended.
+     * <br>
+     * This message can contain color codes.
+     *
+     * @param message The new message to be logged.
+     */
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    /**
      * Gets a set of recipients that this message will be displayed to.
      *
      * @return All Players who will see this chat message
