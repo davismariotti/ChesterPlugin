@@ -1,5 +1,7 @@
 package info.gomeow.chester;
 
+import info.gomeow.chester.API.ChesterBroadcastEvent;
+import info.gomeow.chester.API.ChesterLogEvent;
 import info.gomeow.chester.util.Metrics;
 import info.gomeow.chester.util.Updater;
 
@@ -14,12 +16,11 @@ import java.io.ObjectInputStream;
 import java.util.List;
 import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -49,6 +50,7 @@ public class Chester extends JavaPlugin implements Listener {
         if(triggerwords.size() == 0) {
             triggerwords.add("chester");
         }
+        System.out.println(triggerwords);
         startChester();
         startMetrics();
         checkUpdate();
@@ -158,49 +160,40 @@ public class Chester extends JavaPlugin implements Listener {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @EventHandler
-    public void onChat(final AsyncPlayerChatEvent event) {
+    public void onChat(final PlayerChatEvent event) {
         Player player = event.getPlayer();
         final String message = event.getMessage();
-        if(player.hasPermission("chester.log")) {
+        ChesterLogEvent logEvent = new ChesterLogEvent(player, message);
+        getServer().getPluginManager().callEvent(logEvent);
+        if(player.hasPermission("chester.log") || logEvent.isCancelled()) {
             write(clean(message));
         }
         if(player.hasPermission("chester.trigger")) {
-            getServer().getScheduler().runTask(this, new BukkitRunnable() {
-
-                @Override
-                public void run() {
-                    boolean cancel = false;
-                    for(String trigger:triggerwords) {
-                        if(message.matches("^.*(?i)" + trigger + ".*$")) {
-                            cancel = true;
-                            break;
-                        }
-                    }
-                    if(!cancel) {
-                        hal.add(message);
-                    }
-                }
-
-            });
-            for(final String trigger:triggerwords) {
+            boolean cancel = false;
+            for(String trigger:triggerwords) {
                 if(message.matches("^.*(?i)" + trigger + ".*$")) {
-                    getServer().getScheduler().scheduleSyncDelayedTask(this, new BukkitRunnable() {
-
-                        @Override
-                        public void run() {
-                            String sentence = hal.getSentence();
-                            while(sentence.matches("^.*(?i)" + trigger + ".*$")) {
-                                sentence = hal.getSentence();
-                            }
-                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("nickname")) + ChatColor.getByChar(getConfig().getString("chatcolor")) + " " + ChatColor.translateAlternateColorCodes('&', sentence));
-                        }
-
-                    }, 20L);
+                    cancel = true;
                     break;
                 }
             }
+            if(!cancel) {
+                hal.add(message);
+            }
+        }
+        for(final String trigger:triggerwords) {
+            if(message.matches("^.*(?i)" + trigger + ".*$")) {
+                String sentence = hal.getSentence();
+                while(sentence.matches("^.*(?i)" + trigger + ".*$")) {
+                    sentence = hal.getSentence();
+                }
+                ChesterBroadcastEvent cbe = new ChesterBroadcastEvent(sentence);
+                for(Player plyer:cbe.getRecipients()) {
+                    plyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("nickname")) + ChatColor.getByChar(getConfig().getString("chatcolor")) + " " + ChatColor.translateAlternateColorCodes('&', sentence));
+                }
+                break;
+            }
         }
     }
-
 }
