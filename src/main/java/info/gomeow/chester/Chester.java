@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
@@ -26,6 +27,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jibble.jmegahal.JMegaHal;
 
+@SuppressWarnings("deprecation")
 public class Chester extends JavaPlugin implements Listener {
 
     public static String LINK;
@@ -33,6 +35,8 @@ public class Chester extends JavaPlugin implements Listener {
     public static String NEWVERSION;
 
     JMegaHal hal = new JMegaHal();
+    
+    Random rand = new Random();
 
     List<String> triggerwords;
 
@@ -160,7 +164,6 @@ public class Chester extends JavaPlugin implements Listener {
         }
     }
 
-    @SuppressWarnings("deprecation")
     @EventHandler
     public void onChat(final PlayerChatEvent event) {
         Player player = event.getPlayer();
@@ -186,7 +189,7 @@ public class Chester extends JavaPlugin implements Listener {
             if(message.matches("^.*(?i)" + trigger + ".*$")) {
                 String sentence = hal.getSentence();
                 while(sentence.matches("^.*(?i)" + trigger + ".*$")) {
-                    sentence = hal.getSentence();
+                    sentence = hal.getSentence(message.split(" ")[rand.nextInt(message.split(" ").length)]);
                 }
                 ChesterBroadcastEvent cbe = new ChesterBroadcastEvent(sentence);
                 getServer().getPluginManager().callEvent(cbe);
