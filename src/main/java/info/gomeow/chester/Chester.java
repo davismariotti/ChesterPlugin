@@ -165,9 +165,9 @@ public class Chester extends JavaPlugin implements Listener {
     public void onChat(final PlayerChatEvent event) {
         Player player = event.getPlayer();
         final String message = event.getMessage();
-        ChesterLogEvent logEvent = new ChesterLogEvent(player, message);
-        getServer().getPluginManager().callEvent(logEvent);
-        if(player.hasPermission("chester.log") || logEvent.isCancelled()) {
+        ChesterLogEvent cle = new ChesterLogEvent(player, message);
+        getServer().getPluginManager().callEvent(cle);
+        if(player.hasPermission("chester.log") && !cle.isCancelled()) {
             write(clean(message));
         }
         if(player.hasPermission("chester.trigger")) {
@@ -189,6 +189,7 @@ public class Chester extends JavaPlugin implements Listener {
                     sentence = hal.getSentence();
                 }
                 ChesterBroadcastEvent cbe = new ChesterBroadcastEvent(sentence);
+                getServer().getPluginManager().callEvent(cbe);
                 for(Player plyer:cbe.getRecipients()) {
                     plyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("nickname")) + ChatColor.getByChar(getConfig().getString("chatcolor")) + " " + ChatColor.translateAlternateColorCodes('&', sentence));
                 }
