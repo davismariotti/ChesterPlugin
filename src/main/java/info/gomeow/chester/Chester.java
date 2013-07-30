@@ -164,9 +164,9 @@ public class Chester extends JavaPlugin implements Listener {
     @EventHandler
     public void onChat(final PlayerChatEvent event) {
         Player player = event.getPlayer();
-        final String message = event.getMessage();
-        ChesterLogEvent cle = new ChesterLogEvent(player, message);
+        ChesterLogEvent cle = new ChesterLogEvent(player, event.getMessage());
         getServer().getPluginManager().callEvent(cle);
+        final String message = cle.getMessage();
         if(player.hasPermission("chester.log") && !cle.isCancelled()) {
             write(clean(message));
         }
