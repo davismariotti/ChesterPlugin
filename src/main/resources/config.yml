@@ -1,6 +1,7 @@
 # Trigger word is case insensitive.
 # Nickname can contain color codes using the '&' character.
-triggerword: 'chester'
+triggerwords:
+- chester
 nickname: '<_Chester_>'
 # The chat color will be the color chester talks in.
 chatcolor: r

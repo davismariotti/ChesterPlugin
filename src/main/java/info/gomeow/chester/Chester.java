@@ -53,8 +53,10 @@ public class Chester extends JavaPlugin implements Listener {
         triggerwords = getConfig().getStringList("triggerwords");
         if(triggerwords.size() == 0) {
             triggerwords.add("chester");
+            getLogger().info("No triggerwords found. Using chester as triggerword.");
+            getLogger().info("Make sure the config.yml contains the 'triggerwords', and not just a 'triggerword'");
         }
-        System.out.println(triggerwords);
+        getLogger().info("Triggerwords: " + triggerwords);
         startChester();
         startMetrics();
         checkUpdate();
