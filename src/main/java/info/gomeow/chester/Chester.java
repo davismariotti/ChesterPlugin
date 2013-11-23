@@ -191,7 +191,7 @@ public class Chester extends JavaPlugin implements Listener {
             if(message.matches("^.*(?i)" + trigger + ".*$")) {
                 String sentence = hal.getSentence();
                 while(sentence.matches("^.*(?i)" + trigger + ".*$")) {
-                    sentence = hal.getSentence(message.split(" ")[rand.nextInt(message.split(" ").length)]);
+                    sentence = hal.getSentence(message.replaceAll("(?i)" + trigger, "").split(" ")[rand.nextInt(message.split(" ").length)]);
                 }
                 final ChesterBroadcastEvent cbe = new ChesterBroadcastEvent(sentence);
                 getServer().getPluginManager().callEvent(cbe);
@@ -199,9 +199,11 @@ public class Chester extends JavaPlugin implements Listener {
                 new BukkitRunnable() {
 
                     public void run() {
-                        String msg = ChatColor.translateAlternateColorCodes('&', getConfig().getString("nickname")) + ChatColor.getByChar(getConfig().getString("chatcolor")) + " " + ChatColor.translateAlternateColorCodes('&', finalSentence);
+                        String name = ChatColor.translateAlternateColorCodes('&', getConfig().getString("nickname")) + " ";
+                        ChatColor color = ChatColor.getByChar(getConfig().getString("chatcolor"));
+                        String msg = ChatColor.translateAlternateColorCodes('&', finalSentence);
                         for(Player plyer:cbe.getRecipients()) {
-                            plyer.sendMessage(msg);
+                            plyer.sendMessage(name + color + msg);
                         }
                         System.out.println(ChatColor.stripColor(msg));
                     }
