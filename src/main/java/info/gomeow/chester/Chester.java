@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -32,6 +33,8 @@ public class Chester extends JavaPlugin implements Listener {
     public static String NEWVERSION;
 
     List<String> triggerwords;
+
+    List<String> newSentences = new ArrayList<String>();
 
     ChesterCommunicator chester;
 
@@ -60,6 +63,7 @@ public class Chester extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         this.chester.stop();
+        this.writeNewSentences();
     }
 
     public void firstRun(JMegaHal hal, File f) {
@@ -150,16 +154,24 @@ public class Chester extends JavaPlugin implements Listener {
         return newstring;
     }
 
-    public void write(String sentence) {
+    public void writeNewSentences() {
         File chesterFile = new File(this.getDataFolder(), "brain.chester");
         try {
             FileWriter fw = new FileWriter(chesterFile, true);
             BufferedWriter bw = new BufferedWriter(fw);
-            bw.write(sentence + "\n");
+            for (String sentence : this.newSentences) {
+                bw.write(sentence + "\n");
+            }
             bw.close();
-        } catch(IOException ioe) {
+        } catch (IOException ioe) {
             ioe.printStackTrace();
+        } finally {
         }
+
+    }
+
+    public void addToFile(String sentence) {
+        this.newSentences.add(sentence);
     }
 
     @EventHandler
@@ -181,7 +193,7 @@ public class Chester extends JavaPlugin implements Listener {
         new BukkitRunnable() {
             public void run() {
                 if(player.hasPermission("chester.log") && !cle.isCancelled()) {
-                    write(clean(message));
+                    addToFile(clean(message));
                 }
                 if (player.hasPermission("chester.trigger")) {
                     boolean cancel = false;
