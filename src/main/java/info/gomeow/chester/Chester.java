@@ -1,7 +1,6 @@
 package info.gomeow.chester;
 
-import info.gomeow.chester.API.ChesterBroadcastEvent;
-import info.gomeow.chester.API.ChesterLogEvent;
+import info.gomeow.chester.API.AsyncChesterLogEvent;
 import info.gomeow.chester.util.Metrics;
 import info.gomeow.chester.util.Updater;
 
@@ -14,31 +13,27 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.List;
-import java.util.Random;
 import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jibble.jmegahal.JMegaHal;
 
-@SuppressWarnings("deprecation")
 public class Chester extends JavaPlugin implements Listener {
 
     public static String LINK;
     public static boolean UPDATE;
     public static String NEWVERSION;
 
-    JMegaHal hal = new JMegaHal();
-
-    Random rand = new Random();
-
     List<String> triggerwords;
+
+    ChesterCommunicator chester;
 
     @Override
     public void onEnable() {
@@ -62,7 +57,12 @@ public class Chester extends JavaPlugin implements Listener {
         checkUpdate();
     }
 
-    public void firstRun(File f) {
+    @Override
+    public void onDisable() {
+        this.chester.stop();
+    }
+
+    public void firstRun(JMegaHal hal, File f) {
         try {
             f.createNewFile();
         } catch(IOException ioe) {
@@ -73,11 +73,12 @@ public class Chester extends JavaPlugin implements Listener {
         hal.add("Please slap me");
     }
 
-    public void transfer(ObjectInputStream in) throws ClassNotFoundException, IOException {
-        hal = (JMegaHal) in.readObject();
+    public JMegaHal transfer(ObjectInputStream in) throws ClassNotFoundException, IOException {
+        JMegaHal hal = (JMegaHal) in.readObject();
         if(in != null) {
             in.close();
         }
+        return hal;
     }
 
     public void checkUpdate() {
@@ -118,8 +119,11 @@ public class Chester extends JavaPlugin implements Listener {
                 dir.mkdirs();
             }
             File old = new File(this.getDataFolder(), "chester.brain");
+            JMegaHal hal;
             if(old.exists()) {
-                transfer(new ObjectInputStream(new FileInputStream(old)));
+                hal = transfer(new ObjectInputStream(new FileInputStream(old)));
+            } else {
+                hal = new JMegaHal();
             }
             if(chesterFile.exists()) {
                 FileReader fr = new FileReader(chesterFile);
@@ -130,8 +134,9 @@ public class Chester extends JavaPlugin implements Listener {
                 }
                 br.close();
             } else {
-                firstRun(chesterFile);
+                firstRun(hal, chesterFile);
             }
+            this.chester = new ChesterCommunicator(this, hal, triggerwords);
         } catch(IOException ioe) {
         } catch(ClassNotFoundException cnfe) {
         }
@@ -167,49 +172,31 @@ public class Chester extends JavaPlugin implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onChat(final PlayerChatEvent event) {
-        Player player = event.getPlayer();
-        ChesterLogEvent cle = new ChesterLogEvent(player, event.getMessage());
+    public void onChat(final AsyncPlayerChatEvent event) {
+        final Player player = event.getPlayer();
+        final AsyncChesterLogEvent cle = new AsyncChesterLogEvent(player, event.getMessage());
         getServer().getPluginManager().callEvent(cle);
         final String message = cle.getMessage();
-        if(player.hasPermission("chester.log") && !cle.isCancelled()) {
-            write(clean(message));
-        }
-        if(player.hasPermission("chester.trigger")) {
-            boolean cancel = false;
-            for(String trigger:triggerwords) {
-                if(message.matches("^.*(?i)" + trigger + ".*$")) {
-                    cancel = true;
-                    break;
+        // Permissions checks aren't thread safe so we need to handle this on the main thread
+        new BukkitRunnable() {
+            public void run() {
+                if(player.hasPermission("chester.log") && !cle.isCancelled()) {
+                    write(clean(message));
                 }
-            }
-            if(!cancel) {
-                hal.add(message);
-            }
-        }
-        for(final String trigger:triggerwords) {
-            if(message.matches("^.*(?i)" + trigger + ".*$")) {
-                String sentence = hal.getSentence();
-                while(sentence.matches("^.*(?i)" + trigger + ".*$")) {
-                    sentence = hal.getSentence(message.replaceAll("(?i)" + trigger, "").split(" ")[rand.nextInt(message.split(" ").length)]);
-                }
-                final ChesterBroadcastEvent cbe = new ChesterBroadcastEvent(sentence);
-                getServer().getPluginManager().callEvent(cbe);
-                final String finalSentence = new String(sentence);
-                new BukkitRunnable() {
-
-                    public void run() {
-                        String name = ChatColor.translateAlternateColorCodes('&', getConfig().getString("nickname")) + " ";
-                        ChatColor color = ChatColor.getByChar(getConfig().getString("chatcolor"));
-                        String msg = ChatColor.translateAlternateColorCodes('&', finalSentence);
-                        for(Player plyer:cbe.getRecipients()) {
-                            plyer.sendMessage(name + color + msg);
+                if (player.hasPermission("chester.trigger")) {
+                    boolean cancel = false;
+                    for(String trigger:triggerwords) {
+                        if(message.matches("^.*(?i)" + trigger + ".*$")) {
+                            cancel = true;
+                            break;
                         }
-                        System.out.println(ChatColor.stripColor(msg));
                     }
-                }.runTaskLater(this, 1L);
-                break;
+                    if(!cancel) {
+                        Chester.this.chester.addSentenceToBrain(message);
+                    }
+                }
             }
-        }
+        }.runTask(this);
+        this.chester.queueMessage(message);
     }
 }
