@@ -5,14 +5,15 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class ChesterLogEvent extends Event implements Cancellable {
+public class AsyncChesterLogEvent extends Event implements Cancellable {
 
     private static final HandlerList handlers = new HandlerList();
     private final Player player;
     private String message;
     private boolean cancel = false;
 
-    public ChesterLogEvent(Player player, String message) {
+    public AsyncChesterLogEvent(Player player, String message) {
+        super(true);
         this.player = player;
         this.message = message;
     }
