@@ -28,12 +28,6 @@ package info.gomeow.chester.util;
  * either expressed or implied, of anybody else.
  */
 
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -51,6 +45,12 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
+
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
 
 /**
  * <p>
@@ -365,7 +365,7 @@ public class Metrics {
         data.append(encode("guid")).append('=').append(encode(guid));
         encodeDataPair(data, "version", description.getVersion());
         encodeDataPair(data, "server", Bukkit.getVersion());
-        encodeDataPair(data, "players", Integer.toString(Bukkit.getServer().getOnlinePlayers().length));
+        encodeDataPair(data, "players", Integer.toString(Bukkit.getServer().getOnlinePlayers().size()));
         encodeDataPair(data, "revision", String.valueOf(REVISION));
 
         // If we're pinging, append it

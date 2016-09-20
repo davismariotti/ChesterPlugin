@@ -3,9 +3,7 @@ package info.gomeow.chester.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
-
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -16,19 +14,21 @@ public class Updater {
 
     public Updater(String v) throws SAXException, IOException, ParserConfigurationException {
         oldVersion = v.substring(0, 5);
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://dev.bukkit.org/projects/chester/files.rss").openConnection();
-        connection.setConnectTimeout(10000);
-        connection.setReadTimeout(10000);
-        connection.setUseCaches(false);
-        Document feed = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(connection.getInputStream());
+        Document feed = loadDocument("https://dev.bukkit.org/bukkit-plugins/chester/files.rss");
         newVersion = feed.getElementsByTagName("title").item(1).getTextContent().substring(1);
-        String link = feed.getElementsByTagName("link").item(1).getTextContent();
-        this.link = new BufferedReader(new InputStreamReader(new URL("http://is.gd/create.php?format=simple&url=" + link).openStream())).readLine();
+        link = feed.getElementsByTagName("link").item(1).getTextContent();
+        link = new BufferedReader(new InputStreamReader(new URL("https://is.gd/create.php?format=simple&url=" + link).openStream())).readLine();
         if(v.contains("SNAPSHOT") && !newVersion.equals(oldVersion)) {
             update = false;
             return;
         }
         update = !newVersion.equals(oldVersion);
+    }
+
+    public Document loadDocument(String url) throws IOException, ParserConfigurationException, SAXException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        return factory.newDocumentBuilder().parse(new URL(url).openStream());
     }
 
     private String oldVersion;

@@ -95,6 +95,8 @@ public class Chester extends JavaPlugin implements Listener {
                         if(UPDATE = u.getUpdate()) {
                             LINK = u.getLink();
                             NEWVERSION = u.getNewVersion();
+                            getLogger().log(Level.SEVERE, "Version " + NEWVERSION + " of Chester is up for download!");
+                            getLogger().log(Level.SEVERE, LINK + " to view the changelog and download!");
                         }
                     } catch(Exception e) {
                         getLogger().log(Level.WARNING, "Failed to check for updates.");

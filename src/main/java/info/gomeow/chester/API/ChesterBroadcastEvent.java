@@ -1,6 +1,5 @@
 package info.gomeow.chester.API;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,7 +16,7 @@ public class ChesterBroadcastEvent extends Event {
 
     public ChesterBroadcastEvent(String message) {
         this.message = message;
-        recipients = new HashSet<Player>(Arrays.asList(Bukkit.getOnlinePlayers()));
+        recipients = new HashSet<Player>(Bukkit.getOnlinePlayers());
     }
 
     /**
