@@ -20,6 +20,17 @@ public class ChesterBroadcastEvent extends Event {
     }
 
     /**
+     * Constructs a new ChesterBroadcastEvent
+     *
+     * @param message The message broadcasted
+     * @param recipients The players that will receive the message
+     */
+    public ChesterBroadcastEvent(String message, Set<Player> recipients) {
+        this.message = message;
+        this.recipients = recipients;
+    }
+
+    /**
      * Gets the message that will be logged into chester's log files.
      * 
      * @return The message to be logged
