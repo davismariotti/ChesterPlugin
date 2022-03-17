@@ -1,22 +1,28 @@
-package info.gomeow.chester.API;
+package com.davismariotti.chester.api;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class ChesterBroadcastEvent extends Event {
+public class AsyncChesterLogEvent extends Event implements Cancellable {
 
     private static final HandlerList handlers = new HandlerList();
-    private final Set<Player> recipients;
+    private final Player player;
     private String message;
+    private boolean cancel = false;
 
-    public ChesterBroadcastEvent(String message) {
+    public AsyncChesterLogEvent(Player player, String message) {
+        super(true);
+        this.player = player;
         this.message = message;
-        recipients = new HashSet<Player>(Bukkit.getOnlinePlayers());
+    }
+
+    /**
+     * @return The player who triggered Chester
+     */
+    public Player getPlayer() {
+        return player;
     }
 
     /**
@@ -29,11 +35,9 @@ public class ChesterBroadcastEvent extends Event {
     }
 
     /**
-     * Sets the message that will be broadcasted.
+     * Sets the message that will be logged into chester's log files.
      * <br>
-     * Modifying this message is not recommended.
-     * <br>
-     * This message can contain color codes.
+     * This message can contain color codes
      *
      * @param message The new message to be logged.
      */
@@ -41,13 +45,14 @@ public class ChesterBroadcastEvent extends Event {
         this.message = message;
     }
 
-    /**
-     * Gets a set of recipients that this message will be displayed to.
-     *
-     * @return All Players who will see this chat message
-     */
-    public Set<Player> getRecipients() {
-        return recipients;
+    @Override
+    public boolean isCancelled() {
+        return cancel;
+    }
+
+    @Override
+    public void setCancelled(boolean cancel) {
+        this.cancel = cancel;
     }
 
     @Override

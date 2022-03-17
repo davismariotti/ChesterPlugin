@@ -1,4 +1,4 @@
-main: info.gomeow.chester.Chester
+main: com.davismariotti.chester.Chester
 name: Chester
 version: ${project.version}
 

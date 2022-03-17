@@ -1,4 +1,4 @@
-package info.gomeow.chester;
+package com.davismariotti.chester;
 
 import java.util.List;
 import java.util.Random;
@@ -10,8 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jibble.jmegahal.JMegaHal;
 
-import info.gomeow.chester.API.ChesterBroadcastEvent;
-import info.gomeow.chester.API.AsyncChesterLogEvent;
+import com.davismariotti.chester.api.ChesterBroadcastEvent;
+import com.davismariotti.chester.api.AsyncChesterLogEvent;
 
 public class ChesterCommunicator implements Runnable {
     private static final Random RAND = new Random();
